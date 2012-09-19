@@ -11,6 +11,12 @@
 #define contentsHeight(tileSize) (float)((48.0+1.0) * 2.0 * tileSize)
 #define contentsWidth(tileSize) (float)((48.0+1.0) * 2.0 * tileSize)
 
+NSString * imageUrlStrings[] = {
+    @"http://imgs.xkcd.com/clickdrag/%ds%dw.png",
+    @"http://imgs.xkcd.com/clickdrag/%ds%de.png",
+    @"http://imgs.xkcd.com/clickdrag/%dn%dw.png",
+    @"http://imgs.xkcd.com/clickdrag/%dn%de.png"};
+
 @implementation BlackView
 
 - (void)drawRect:(NSRect)rect
@@ -24,42 +30,37 @@
 
 @implementation TileImageView
 
-- (void)reinitWithTileSize:(float)tileSize
+- (NSRect)makeFrameWithTileSize:(float)tileSize
 {
-    NSRect frame;
     if(sector == 0)
-        frame = NSMakeRect(contentsWidth(tileSize)/2.0  - tileSize*(float)(i-1),
+        return NSMakeRect(contentsWidth(tileSize)/2.0  - tileSize*(float)(i-1),
                            contentsHeight(tileSize)/2.0 - tileSize*(float)(j-1),
                            tileSize,
                            tileSize);
     if(sector == 1)
-        frame = NSMakeRect(contentsWidth(tileSize)/2.0  + tileSize*(float)(i),
+        return NSMakeRect(contentsWidth(tileSize)/2.0  + tileSize*(float)(i),
                            contentsHeight(tileSize)/2.0 - tileSize*(float)(j-1),
                            tileSize,
                            tileSize);
     if(sector == 2)
-        frame = NSMakeRect(contentsWidth(tileSize)/2.0  - tileSize*(float)(i-1),
+        return NSMakeRect(contentsWidth(tileSize)/2.0  - tileSize*(float)(i-1),
                            contentsHeight(tileSize)/2.0 + tileSize*(float)(j),
                            tileSize,
                            tileSize);
     if(sector == 3)
-        frame = NSMakeRect(contentsWidth(tileSize)/2.0  + tileSize*(float)(i),
+        return NSMakeRect(contentsWidth(tileSize)/2.0  + tileSize*(float)(i),
                            contentsHeight(tileSize)/2.0 + tileSize*(float)(j),
                            tileSize,
-                           tileSize);    
+                           tileSize);
     
-    self.frame = frame;
-    
-    if(![self image])
-    {
-        if(sector == 0 || sector == 1)
-        {
+    return NSMakeRect(0, 0, 0, 0);
+}
+
+- (void)reinitWithTileSize:(float)tileSize
+{
+    self.frame = [self makeFrameWithTileSize:tileSize];    
+    if(![self image] && (sector == 0 || sector == 1))
             [[[self subviews] objectAtIndex:0] setFrame:NSMakeRect(0, 0, tileSize, tileSize)];
-//            BlackView * blackView = [[BlackView alloc] initWithFrame:NSMakeRect(0, 0, tileSize, tileSize)];
-//            [self addSubview:blackView];
-//            [blackView release];
-        }
-    }
 }
 
 - (TileImageView*)initWithI:(int)_i
@@ -71,40 +72,11 @@
     j = _j;
     sector = _sector;
     
-    NSRect frame;
+    NSRect frame = [self makeFrameWithTileSize:tileSize];
     NSURL *imageUrl;
-    if(sector == 0)
-    {
-        frame = NSMakeRect(contentsWidth(tileSize)/2.0  - tileSize*(float)(i-1),
-                           contentsHeight(tileSize)/2.0 - tileSize*(float)(j-1),
-                           tileSize,
-                           tileSize);
-        imageUrl = [NSURL URLWithString:[NSString stringWithFormat:@"http://imgs.xkcd.com/clickdrag/%ds%dw.png", j, i]];
-    }
-    if(sector == 1)
-    {
-        frame = NSMakeRect(contentsWidth(tileSize)/2.0  + tileSize*(float)(i),
-                           contentsHeight(tileSize)/2.0 - tileSize*(float)(j-1),
-                           tileSize,
-                           tileSize);
-        imageUrl = [NSURL URLWithString:[NSString stringWithFormat:@"http://imgs.xkcd.com/clickdrag/%ds%de.png", j, i]];
-    }
-    if(sector == 2)
-    {
-        frame = NSMakeRect(contentsWidth(tileSize)/2.0  - tileSize*(float)(i-1),
-                           contentsHeight(tileSize)/2.0 + tileSize*(float)(j),
-                           tileSize,
-                           tileSize);
-        imageUrl = [NSURL URLWithString:[NSString stringWithFormat:@"http://imgs.xkcd.com/clickdrag/%dn%dw.png", j, i]];
-    }
-    if(sector == 3)
-    {
-        frame = NSMakeRect(contentsWidth(tileSize)/2.0  + tileSize*(float)(i),
-                           contentsHeight(tileSize)/2.0 + tileSize*(float)(j),
-                           tileSize,
-                           tileSize);
-        imageUrl = [NSURL URLWithString:[NSString stringWithFormat:@"http://imgs.xkcd.com/clickdrag/%dn%de.png", j, i]];    
-    }
+    
+    if(sector >= 0 && sector <= 3)
+        imageUrl = [NSURL URLWithString:[NSString stringWithFormat:imageUrlStrings[sector], j, i]];
     
     self = [super initWithFrame:frame];
     if(self)
@@ -201,9 +173,7 @@
                                                                                               J:j
                                                                                          sector:0                                                                                       
                                                                                        tileSize:tileSize];
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [imagesScrollView.documentView addSubview:anotherTileImageView];
-                        });
+                        [imagesScrollView.documentView addSubview:anotherTileImageView];
                         [anotherTileImageView release];
                     });
                     dispatch_async(se, ^{
@@ -211,9 +181,7 @@
                                                                                               J:j
                                                                                          sector:1
                                                                                        tileSize:tileSize];
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [imagesScrollView.documentView addSubview:anotherTileImageView];
-                        });
+                        [imagesScrollView.documentView addSubview:anotherTileImageView];
                         [anotherTileImageView release];
                     });
                     dispatch_async(nw, ^{
@@ -221,9 +189,7 @@
                                                                                               J:j
                                                                                          sector:2
                                                                                        tileSize:tileSize];
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [imagesScrollView.documentView addSubview:anotherTileImageView];
-                        });
+                        [imagesScrollView.documentView addSubview:anotherTileImageView];
                         [anotherTileImageView release];
                     });
                     dispatch_async(ne, ^{
@@ -231,9 +197,7 @@
                                                                                               J:j
                                                                                          sector:3
                                                                                        tileSize:tileSize];
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            [imagesScrollView.documentView addSubview:anotherTileImageView];
-                        });
+                        [imagesScrollView.documentView addSubview:anotherTileImageView];
                         [anotherTileImageView release];
                     });
                 }
