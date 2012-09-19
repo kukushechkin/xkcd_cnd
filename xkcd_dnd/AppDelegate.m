@@ -77,6 +77,8 @@ NSString * imageUrlStrings[] = {
     
     if(sector >= 0 && sector <= 3)
         imageUrl = [NSURL URLWithString:[NSString stringWithFormat:imageUrlStrings[sector], j, i]];
+    else
+        imageUrl = [NSURL URLWithString:@""];
     
     self = [super initWithFrame:frame];
     if(self)
