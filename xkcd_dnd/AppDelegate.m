@@ -8,8 +8,8 @@
 
 #import "AppDelegate.h"
 
-#define contentsHeight(tileSize) (float)((48.0+1.0) * 2.0 * 100.0)
-#define contentsWidth(tileSize) (float)((48.0+1.0) * 2.0 * 100.0)
+#define contentsHeight(tileSize) (float)((48.0+1.0) * 2.0 * tileSize)
+#define contentsWidth(tileSize) (float)((48.0+1.0) * 2.0 * tileSize)
 
 @implementation BlackView
 
@@ -164,14 +164,14 @@
 {
     tileSize *= 2.0;
     [self rearrangeAlreadyDrawnTiles];
-    [imagesScrollView.documentView setFrame:CGRectMake(0, 0, (float)((48.0+1.0) * 2.0 * tileSize), (float)((48.0+1.0) * 2.0 * tileSize))];
+    [imagesScrollView.documentView setFrame:CGRectMake(0, 0, contentsHeight(tileSize), contentsHeight(tileSize))];
 }
 
 - (IBAction)zoomOut:(id)sender
 {
     tileSize /= 2.0;
     [self rearrangeAlreadyDrawnTiles];
-    [imagesScrollView.documentView setFrame:CGRectMake(0, 0, (float)((48.0+1.0) * 2.0 * tileSize), (float)((48.0+1.0) * 2.0 * tileSize))];
+    [imagesScrollView.documentView setFrame:CGRectMake(0, 0, contentsHeight(tileSize), contentsHeight(tileSize))];
 }
 
 - (void)awakeFromNib
@@ -180,7 +180,7 @@
     oldZoom = zoom;
     tileSize = 100.0;
     
-    [imagesScrollView.documentView setFrame:CGRectMake(0, 0, (float)((48.0+1.0) * 2.0 * tileSize), (float)((48.0+1.0) * 2.0 * tileSize))];
+    [imagesScrollView.documentView setFrame:CGRectMake(0, 0, contentsHeight(tileSize), contentsHeight(tileSize))];
     
     dispatch_queue_t nw = dispatch_queue_create("com.kukushechkin.xkcddnd.nw", 0);
     dispatch_queue_t ne = dispatch_queue_create("com.kukushechkin.xkcddnd.ne", 0);
